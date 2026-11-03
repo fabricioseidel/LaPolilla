@@ -827,6 +827,9 @@
 .galeria-grid {
   columns: 2 150px;
   column-gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 @media (min-width: 720px) {
   .galeria-grid {
@@ -837,6 +840,9 @@
 .galeria-item {
   break-inside: avoid;
   margin: 0 0 28px;
+}
+.galeria-item figure {
+  margin: 0;
 }
 .galeria-enlace {
   display: block;
@@ -927,7 +933,7 @@ html:has(.galeria-visor[open]) {
 .galeria-visor-imagen img {
   width: auto;
   max-width: 100%;
-  max-height: calc(100dvh - 140px);
+  max-height: calc(100dvh - 250px);
   object-fit: contain;
   border-radius: 8px;
 }
