@@ -12,12 +12,15 @@ import { Books } from './collections/Books'
 import { Entitlements } from './collections/Entitlements'
 import { Illustrations } from './collections/Illustrations'
 import { Media } from './collections/Media'
+import { Messages } from './collections/Messages'
 import { Orders } from './collections/Orders'
 import { Posts } from './collections/Posts'
 import { ProtectedFiles } from './collections/ProtectedFiles'
 import { PublicFiles } from './collections/PublicFiles'
+import { Subscribers } from './collections/Subscribers'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
+import { SiteTexts } from './globals/SiteTexts'
 import { emailAdapter } from './lib/email'
 import { PROTECTED_PREFIX } from './lib/storage'
 
@@ -46,8 +49,21 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
   },
   i18n: { supportedLanguages: { es }, fallbackLanguage: 'es' },
-  collections: [Books, Authors, Illustrations, Posts, Orders, Entitlements, Media, PublicFiles, ProtectedFiles, Users],
-  globals: [SiteSettings],
+  collections: [
+    Books,
+    Authors,
+    Illustrations,
+    Posts,
+    Orders,
+    Entitlements,
+    Media,
+    PublicFiles,
+    ProtectedFiles,
+    Users,
+    Messages,
+    Subscribers,
+  ],
+  globals: [SiteSettings, SiteTexts],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
