@@ -94,7 +94,7 @@ function AuthorLinks({ authors }: { authors: Author[] }) {
 function Featured({ book }: { book?: FeaturedBook }) {
   if (!book)
     return (
-      <section className="home-featured" aria-labelledby="destacado">
+      <section className="home-featured is-empty" aria-labelledby="destacado">
         <div className="home-featured-cover">
           <div className="home-cover-placeholder">
             <MothMark size={96} color="var(--gold)" />
