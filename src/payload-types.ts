@@ -168,11 +168,24 @@ export interface Book {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Unas páginas del libro que cualquiera puede descargar desde la ficha.
+   */
   sample?: (number | null) | MediaPublicFile;
+  /**
+   * Un fragmento corto del audiolibro que cualquiera puede escuchar en la ficha.
+   */
+  audioSample?: (number | null) | MediaPublicFile;
+  /**
+   * Pega el enlace del video, por ejemplo https://youtu.be/…
+   */
   trailerYoutube?: string | null;
   isbn?: string | null;
   pages?: number | null;
   publishedAt?: string | null;
+  /**
+   * Escribe un género y presiona Enter. Se usan como filtro en el catálogo.
+   */
   genres?: string[] | null;
   digitalEnabled?: boolean | null;
   priceDigitalCLP?: number | null;
@@ -188,6 +201,9 @@ export interface Book {
     | {
         title: string;
         file: number | ProtectedFile;
+        /**
+         * Opcional, en segundos (12 min 34 s = 754). Si queda vacío, se calcula al escucharlo.
+         */
         durationSec?: number | null;
         id?: string | null;
       }[]
@@ -278,6 +294,8 @@ export interface Media {
   };
 }
 /**
+ * PDF y audios (MP3/M4A) que cualquiera puede ver o escuchar, como las muestras gratuitas.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media-public-files".
  */
@@ -630,6 +648,7 @@ export interface BooksSelect<T extends boolean = true> {
   cover?: T;
   synopsis?: T;
   sample?: T;
+  audioSample?: T;
   trailerYoutube?: T;
   isbn?: T;
   pages?: T;
