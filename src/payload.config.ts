@@ -40,7 +40,13 @@ export default buildConfig({
   db: postgresAdapter({
     // Esquema propio: así las tablas NO quedan expuestas por la API REST pública de Supabase.
     schemaName: 'payload',
-    pool: { connectionString: process.env.DATABASE_URL || '' },
+    // En Vercel cada instancia es efímera: pocas conexiones y que se liberen rápido.
+    // DATABASE_URL debe apuntar al pooler de Supabase en modo transacción (puerto 6543).
+    pool: {
+      connectionString: process.env.DATABASE_URL || '',
+      max: process.env.VERCEL ? 2 : 10,
+      idleTimeoutMillis: process.env.VERCEL ? 5000 : 10000,
+    },
     migrationDir: path.resolve(dirname, 'migrations'),
     push: false, // el esquema se maneja sólo con migraciones (npm run payload migrate)
   }),
