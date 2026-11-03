@@ -86,8 +86,10 @@ export default async function Biblioteca() {
         <p className="cat-eyebrow">Tu cuenta</p>
         <h1>Mi biblioteca</h1>
         <p>
-          {user.name ? `Hola, ${user.name.split(' ')[0]}. ` : ''}Aquí están tus libros: descarga el ebook y escucha el audiolibro
-          cuando quieras.
+          {user.name ? `Hola, ${user.name.split(' ')[0]}. ` : ''}
+          {shelf.length
+            ? 'Aquí están tus libros: descarga el ebook y escucha el audiolibro cuando quieras.'
+            : 'Aquí vas a encontrar los libros que compres.'}
         </p>
       </header>
 

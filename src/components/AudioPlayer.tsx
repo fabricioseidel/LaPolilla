@@ -247,6 +247,33 @@ export function AudioPlayer({ bookId, chapters, start, bookTitle, authors, cover
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = playing ? 'playing' : 'paused'
   }, [playing])
 
+  // Al tener los metadatos: duración, velocidad, retomar la posición y seguir sonando si corresponde.
+  const onMetadata = (a: HTMLAudioElement) => {
+    a.defaultPlaybackRate = rate
+    a.playbackRate = rate
+    if (Number.isFinite(a.duration)) setKnown((k) => (k[current] === a.duration ? k : { ...k, [current]: a.duration }))
+    if (pendingSeek.current) {
+      a.currentTime = Math.min(pendingSeek.current, Number.isFinite(a.duration) ? Math.max(0, a.duration - 1) : pendingSeek.current)
+      pendingSeek.current = 0
+    }
+    loading.current = false
+    setTime(a.currentTime)
+    updatePosition()
+    if (autoplay.current) {
+      autoplay.current = false
+      a.play().catch(() => {})
+    }
+  }
+
+  // Si el audio cargó sus metadatos (o falló) antes de que React se hidratara, esos eventos ya pasaron.
+  useEffect(() => {
+    const a = audio.current
+    if (!a) return
+    if (a.error) setError(true)
+    else if (a.readyState >= 1 && loading.current) onMetadata(a)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   if (!ch) return null
   const progress = duration ? Math.min(100, (time / duration) * 100) : 0
 
@@ -260,23 +287,7 @@ export function AudioPlayer({ bookId, chapters, start, bookTitle, authors, cover
           loading.current = true
           setPlaying(false)
         }}
-        onLoadedMetadata={(e) => {
-          const a = e.currentTarget
-          a.defaultPlaybackRate = rate
-          a.playbackRate = rate
-          if (Number.isFinite(a.duration)) setKnown((k) => (k[current] === a.duration ? k : { ...k, [current]: a.duration }))
-          if (pendingSeek.current) {
-            a.currentTime = Math.min(pendingSeek.current, Number.isFinite(a.duration) ? Math.max(0, a.duration - 1) : pendingSeek.current)
-            pendingSeek.current = 0
-          }
-          loading.current = false
-          setTime(a.currentTime)
-          updatePosition()
-          if (autoplay.current) {
-            autoplay.current = false
-            a.play().catch(() => {})
-          }
-        }}
+        onLoadedMetadata={(e) => onMetadata(e.currentTarget)}
         onTimeUpdate={(e) => {
           if (!loading.current) setTime(e.currentTarget.currentTime)
         }}
