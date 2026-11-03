@@ -2,22 +2,28 @@ import { headers as getHeaders } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { CartError, priceCart, type CartItem, type Market } from '@/lib/cart'
 import { getPayloadClient } from '@/lib/payload'
+import { gateways } from '@/lib/payments/config'
 import { createLemonCheckout } from '@/lib/payments/lemonsqueezy'
 import { createMercadoPagoCheckout } from '@/lib/payments/mercadopago'
 
 type Body = {
   items: CartItem[]
   market: Market
-  email: string
   shippingAddress?: { name: string; phone: string; street: string; comuna: string; region: string; notes?: string }
 }
 
 export async function POST(req: Request) {
   const payload = await getPayloadClient()
   const { user } = await payload.auth({ headers: await getHeaders() })
+  // Se compra con cuenta: así el libro queda siempre en "Mi biblioteca".
+  if (!user) return NextResponse.json({ error: 'Ingresa o crea tu cuenta para comprar' }, { status: 401 })
+
   const body = (await req.json()) as Body
-  const email = user?.email ?? body.email
-  if (!email) return NextResponse.json({ error: 'Falta el email' }, { status: 400 })
+  const enabled = gateways()
+  if (body.market === 'CL' && !enabled.mercadopago)
+    return NextResponse.json({ error: 'Los pagos en Chile aún no están habilitados' }, { status: 503 })
+  if (body.market === 'INTL' && !enabled.lemonsqueezy)
+    return NextResponse.json({ error: 'Los pagos internacionales aún no están habilitados' }, { status: 503 })
 
   try {
     const cart = await priceCart(payload, body.items, body.market, body.shippingAddress?.region)
@@ -28,8 +34,8 @@ export async function POST(req: Request) {
       collection: 'orders',
       overrideAccess: true,
       data: {
-        user: user?.id,
-        email,
+        user: user.id,
+        email: user.email,
         status: 'pendiente',
         currency: cart.currency,
         gateway: body.market === 'CL' ? 'mercadopago' : 'lemonsqueezy',
@@ -51,6 +57,6 @@ export async function POST(req: Request) {
   } catch (e) {
     if (e instanceof CartError) return NextResponse.json({ error: e.message }, { status: 400 })
     payload.logger.error(e)
-    return NextResponse.json({ error: 'No se pudo iniciar el pago' }, { status: 500 })
+    return NextResponse.json({ error: 'No se pudo iniciar el pago. Intenta de nuevo en unos minutos.' }, { status: 500 })
   }
 }

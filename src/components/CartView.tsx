@@ -1,15 +1,20 @@
 'use client'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import type { Gateways } from '@/lib/payments/config'
 import { readCart, writeCart, type StoredItem } from './cart-store'
 
-export function CartView({ regions }: { regions: { region: string; price: number }[] }) {
+type Props = { userEmail: string | null; gateways: Gateways; regions: { region: string; price: number }[] }
+
+export function CartView({ userEmail, gateways, regions }: Props) {
   const [items, setItems] = useState<StoredItem[]>([])
-  const [market, setMarket] = useState<'CL' | 'INTL'>('CL')
+  const [market, setMarket] = useState<'CL' | 'INTL'>(gateways.mercadopago || !gateways.lemonsqueezy ? 'CL' : 'INTL')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   useEffect(() => setItems(readCart()), [])
 
   const hasPhysical = items.some((i) => i.format === 'fisico')
+  const anyGateway = gateways.mercadopago || gateways.lemonsqueezy
   const update = (next: StoredItem[]) => {
     setItems(next)
     writeCart(next)
@@ -20,30 +25,32 @@ export function CartView({ regions }: { regions: { region: string; price: number
     setLoading(true)
     const res = await fetch('/api/checkout', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         market,
-        email: form.get('email'),
         items: items.map(({ bookId, format, quantity }) => ({ bookId, format, quantity })),
         shippingAddress: hasPhysical
           ? Object.fromEntries(['name', 'phone', 'street', 'comuna', 'region', 'notes'].map((k) => [k, form.get(k)]))
           : undefined,
       }),
     })
-    const json = await res.json()
+    const json = await res.json().catch(() => ({}))
     setLoading(false)
-    if (!res.ok) return setError(json.error)
+    if (!res.ok) return setError(json.error ?? 'No se pudo iniciar el pago')
     window.location.href = json.url
   }
 
-  if (!items.length) return <p>Tu carrito está vacío.</p>
+  if (!items.length) return <p>Tu carrito está vacío. <Link href="/libros">Ver libros</Link></p>
 
   return (
     <form action={pay} className="cart">
       <ul>
         {items.map((i, idx) => (
           <li key={`${i.bookId}-${i.format}`}>
-            {i.title} · {i.format === 'digital' ? 'Digital (ebook + audiolibro)' : `Físico ×${i.quantity} (incluye ebook + audiolibro)`}
+            <span>
+              {i.title} · {i.format === 'digital' ? 'Digital (ebook + audiolibro)' : `Físico ×${i.quantity} (incluye ebook + audiolibro)`}
+            </span>
             <button type="button" className="link" onClick={() => update(items.filter((_, j) => j !== idx))}>
               Quitar
             </button>
@@ -51,39 +58,60 @@ export function CartView({ regions }: { regions: { region: string; price: number
         ))}
       </ul>
 
-      <fieldset>
-        <legend>¿Desde dónde compras?</legend>
-        <label><input type="radio" checked={market === 'CL'} onChange={() => setMarket('CL')} /> Chile (CLP · Mercado Pago)</label>
-        <label>
-          <input type="radio" checked={market === 'INTL'} onChange={() => setMarket('INTL')} disabled={hasPhysical} /> Otro país (USD · tarjeta/PayPal)
-        </label>
-        {hasPhysical && <small>Los libros físicos sólo se envían dentro de Chile.</small>}
-      </fieldset>
+      {!anyGateway ? (
+        <p>Las compras estarán disponibles muy pronto.</p>
+      ) : !userEmail ? (
+        <div className="notice">
+          <p>Para comprar necesitas una cuenta: así tus libros y audiolibros quedan guardados en <b>Mi biblioteca</b>.</p>
+          <p>
+            <Link className="btn" href="/cuenta/registro?volver=/carrito">Crear cuenta</Link>{' '}
+            <Link className="btn secondary" href="/cuenta/ingresar?volver=/carrito">Ya tengo cuenta</Link>
+          </p>
+        </div>
+      ) : (
+        <>
+          <fieldset>
+            <legend>¿Desde dónde compras?</legend>
+            {gateways.mercadopago && (
+              <label className="radio">
+                <input type="radio" name="market" checked={market === 'CL'} onChange={() => setMarket('CL')} /> Chile (pesos chilenos · Mercado Pago)
+              </label>
+            )}
+            {gateways.lemonsqueezy && (
+              <label className="radio">
+                <input type="radio" name="market" checked={market === 'INTL'} onChange={() => setMarket('INTL')} disabled={hasPhysical} /> Otro
+                país (dólares · tarjeta o PayPal)
+              </label>
+            )}
+            {hasPhysical && <small>Los libros físicos se envían sólo dentro de Chile.</small>}
+          </fieldset>
 
-      <label>Email <input name="email" type="email" required /></label>
+          {hasPhysical && market === 'CL' && (
+            <fieldset>
+              <legend>Envío</legend>
+              <label>Nombre <input name="name" autoComplete="name" required /></label>
+              <label>Teléfono <input name="phone" type="tel" autoComplete="tel" required /></label>
+              <label>Calle y número <input name="street" autoComplete="street-address" required /></label>
+              <label>Comuna <input name="comuna" required /></label>
+              <label>
+                Región
+                <select name="region" required>
+                  {regions.map((r) => (
+                    <option key={r.region} value={r.region}>{r.region}</option>
+                  ))}
+                </select>
+              </label>
+              <label>Indicaciones <textarea name="notes" /></label>
+            </fieldset>
+          )}
 
-      {hasPhysical && (
-        <fieldset>
-          <legend>Envío</legend>
-          <label>Nombre <input name="name" required /></label>
-          <label>Teléfono <input name="phone" required /></label>
-          <label>Calle y número <input name="street" required /></label>
-          <label>Comuna <input name="comuna" required /></label>
-          <label>
-            Región
-            <select name="region" required>
-              {regions.map((r) => (
-                <option key={r.region} value={r.region}>{r.region}</option>
-              ))}
-            </select>
-          </label>
-          <label>Indicaciones <textarea name="notes" /></label>
-        </fieldset>
+          <small>Comprando como {userEmail}. El total final (con envío) se muestra en la pasarela de pago.</small>
+          {error && <p className="error" role="alert">{error}</p>}
+          <button className="btn" disabled={loading || (hasPhysical && market !== 'CL')}>
+            {loading ? 'Redirigiendo…' : 'Ir a pagar'}
+          </button>
+        </>
       )}
-
-      {error && <p className="error">{error}</p>}
-      <button className="btn" disabled={loading}>{loading ? 'Redirigiendo…' : 'Pagar'}</button>
-      <small>El total final (con envío) se muestra en la pasarela de pago.</small>
     </form>
   )
 }

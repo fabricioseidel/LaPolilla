@@ -1,3 +1,4 @@
+import { sql, type PostgresAdapter } from '@payloadcms/db-postgres'
 import type { Payload } from 'payload'
 import { sendOrderPaidEmail } from './email'
 import { issueBoleta } from './invoicing'
@@ -5,24 +6,24 @@ import { issueBoleta } from './invoicing'
 const relId = (v: number | { id: number }) => (typeof v === 'object' ? v.id : v)
 
 /**
- * Se llama desde los webhooks cuando el pago está aprobado. Es idempotente:
- * si el pedido ya no está "pendiente", no hace nada.
- * 1) marca pagado  2) da acceso a ebook + audiolibro  3) descuenta stock
- * 4) emite boleta (CLP)  5) envía email
+ * Se llama desde los webhooks cuando el pago está aprobado.
+ * Las pasarelas suelen mandar varias notificaciones del mismo pago al mismo tiempo,
+ * así que el pedido se "reclama" con un UPDATE atómico: sólo la primera notificación
+ * lo procesa (acceso a la biblioteca, stock, boleta y email una sola vez).
  */
 export async function fulfillOrder(payload: Payload, orderId: number, gatewayPaymentId: string) {
   const order = await payload.findByID({ collection: 'orders', id: orderId, depth: 0, overrideAccess: true })
   if (!order || order.status !== 'pendiente') return
 
-  const hasPhysical = order.items.some((i) => i.format === 'fisico')
-  await payload.update({
-    collection: 'orders',
-    id: orderId,
-    overrideAccess: true,
-    data: { status: hasPhysical ? 'preparando' : 'pagado', gatewayPaymentId },
-  })
+  const newStatus = order.items.some((i) => i.format === 'fisico') ? 'preparando' : 'pagado'
+  const db = payload.db as unknown as PostgresAdapter
+  const claimed = await db.drizzle.execute(
+    sql`update "payload"."orders" set "status" = ${newStatus}, "gateway_payment_id" = ${gatewayPaymentId}, "updated_at" = now()
+        where "id" = ${orderId} and "status" = 'pendiente' returning "id"`,
+  )
+  if (!claimed.rows.length) return // otra notificación ya lo procesó
 
-  // Crear cuenta de cliente si compró como invitado
+  // Compatibilidad: pedidos antiguos sin cuenta asociada.
   let userId = order.user ? relId(order.user) : undefined
   if (!userId) {
     const existing = await payload.find({ collection: 'users', where: { email: { equals: order.email } }, limit: 1, overrideAccess: true })
@@ -36,7 +37,6 @@ export async function fulfillOrder(payload: Payload, orderId: number, gatewayPay
         })
       ).id
     await payload.update({ collection: 'orders', id: orderId, overrideAccess: true, data: { user: userId } })
-    // El cliente define su contraseña con "olvidé mi contraseña" (link en el email).
   }
 
   for (const item of order.items) {
@@ -67,9 +67,13 @@ export async function fulfillOrder(payload: Payload, orderId: number, gatewayPay
     try {
       const boleta = await issueBoleta(fresh)
       if (boleta) await payload.update({ collection: 'orders', id: orderId, overrideAccess: true, data: { invoice: boleta } })
-    } catch (e) {
-      payload.logger.error({ err: e, orderId }, 'No se pudo emitir la boleta; emitir manualmente')
+    } catch (err) {
+      payload.logger.error({ err, orderId }, 'No se pudo emitir la boleta; emitir manualmente')
     }
   }
-  await sendOrderPaidEmail(payload, fresh)
+  try {
+    await sendOrderPaidEmail(payload, fresh)
+  } catch (err) {
+    payload.logger.error({ err, orderId }, 'No se pudo enviar el email de confirmación')
+  }
 }

@@ -8,7 +8,8 @@ export default function Gracias() {
     <section>
       <ClearCart />
       <h1>¡Gracias por tu compra!</h1>
-      <p>Te enviamos un email con los detalles. En unos minutos tu libro aparecerá en tu biblioteca.</p>
+      <p>En cuanto la pasarela confirme el pago (normalmente en segundos), tu ebook y audiolibro aparecerán en tu biblioteca.</p>
+      <p>Si compraste el libro físico, te avisaremos cuando sea despachado.</p>
       <Link className="btn" href="/biblioteca">Ir a mi biblioteca</Link>
     </section>
   )

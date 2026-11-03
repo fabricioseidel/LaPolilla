@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { AddToCart } from '@/components/AddToCart'
 import { mediaUrl, money, youtubeId } from '@/lib/format'
 import { getPayloadClient } from '@/lib/payload'
+import { gateways } from '@/lib/payments/config'
 import type { Author } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
@@ -26,6 +27,7 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
   const yt = youtubeId(book.trailerYoutube)
   const outOfStock = book.fulfillment === 'stock' && (book.stock ?? 0) <= 0
   const sampleUrl = mediaUrl(book.sample)
+  const intl = gateways().lemonsqueezy
 
   return (
     <article className="book">
@@ -54,7 +56,10 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
             <div>
               <h3>Digital</h3>
               <p>Ebook (EPUB + PDF) y audiolibro incluido</p>
-              <p>{money(book.priceDigitalCLP, 'CLP')} · {money(book.priceDigitalUSD, 'USD')}</p>
+              <p>
+                {money(book.priceDigitalCLP, 'CLP')}
+                {intl && book.priceDigitalUSD != null && ` · ${money(book.priceDigitalUSD, 'USD')}`}
+              </p>
               <AddToCart bookId={book.id} title={book.title} format="digital" label="Comprar digital" />
             </div>
           )}

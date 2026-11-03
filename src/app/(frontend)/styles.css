@@ -96,3 +96,8 @@ input[type='radio'] { display: inline; min-height: 0; accent-color: var(--gold);
 .player { background: var(--indigo); border-radius: 16px; padding: 20px; }
 .player audio { width: 100%; }
 .player ol { padding-left: 20px; }
+
+.notice { background: var(--indigo); border: 1px solid var(--indigo-2); border-radius: 16px; padding: 20px; }
+.notice p { margin: 0 0 12px; }
+.notice p:last-child { margin: 0; display: flex; flex-wrap: wrap; gap: 12px; }
+label.radio { display: flex; align-items: center; gap: 10px; min-height: 44px; }

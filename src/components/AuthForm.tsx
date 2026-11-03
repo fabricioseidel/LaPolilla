@@ -1,8 +1,11 @@
 'use client'
 import { useState } from 'react'
 
+/** Sólo rutas internas, para evitar redirecciones a otros sitios. */
+const safeNext = (next?: string) => (next && next.startsWith('/') && !next.startsWith('//') ? next : '/biblioteca')
+
 /** Formularios de cuenta usando la API REST de Payload (cookies httpOnly). */
-export function AuthForm({ mode, token }: { mode: 'ingresar' | 'registro' | 'recuperar' | 'restablecer'; token?: string }) {
+export function AuthForm({ mode, token, next }: { mode: 'ingresar' | 'registro' | 'recuperar' | 'restablecer'; token?: string; next?: string }) {
   const [msg, setMsg] = useState('')
 
   async function submit(form: FormData) {
@@ -19,18 +22,26 @@ export function AuthForm({ mode, token }: { mode: 'ingresar' | 'registro' | 'rec
     else if (mode === 'recuperar') res = await req('/forgot-password', { email })
     else res = await req('/reset-password', { token, password })
 
-    if (!res.ok) return setMsg('Algo salió mal. Revisa los datos.')
-    if (mode === 'recuperar') return setMsg('Te enviamos un email con el enlace.')
-    window.location.href = '/biblioteca'
+    if (!res.ok)
+      return setMsg(
+        mode === 'registro' ? 'No se pudo crear la cuenta. ¿Ya tienes una con ese email?' : 'Algo salió mal. Revisa los datos.',
+      )
+    if (mode === 'recuperar') return setMsg('Si el email está registrado, te enviamos un enlace para cambiar la contraseña.')
+    window.location.href = safeNext(next)
   }
 
   return (
     <form action={submit} className="auth">
-      {mode === 'registro' && <label>Nombre <input name="name" /></label>}
-      {mode !== 'restablecer' && <label>Email <input name="email" type="email" required /></label>}
-      {mode !== 'recuperar' && <label>Contraseña <input name="password" type="password" minLength={8} required /></label>}
+      {mode === 'registro' && <label>Nombre <input name="name" autoComplete="name" /></label>}
+      {mode !== 'restablecer' && <label>Email <input name="email" type="email" autoComplete="email" required /></label>}
+      {mode !== 'recuperar' && (
+        <label>
+          Contraseña
+          <input name="password" type="password" minLength={8} autoComplete={mode === 'ingresar' ? 'current-password' : 'new-password'} required />
+        </label>
+      )}
       <button className="btn">Continuar</button>
-      {msg && <p>{msg}</p>}
+      {msg && <p role="status">{msg}</p>}
     </form>
   )
 }

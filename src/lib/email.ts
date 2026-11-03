@@ -11,7 +11,6 @@ export async function sendOrderPaidEmail(payload: Payload, order: Order) {
     html: `
       <p>¡Gracias por tu compra!</p>
       <p>Tu ebook y audiolibro ya están en <a href="${site()}/biblioteca">Mi biblioteca</a>.</p>
-      <p>Si es tu primera compra, crea tu contraseña aquí: <a href="${site()}/cuenta/recuperar">definir contraseña</a>.</p>
       ${physical ? '<p>Tu libro físico está en preparación. Te avisaremos cuando sea despachado.</p>' : ''}
       ${order.invoice?.url ? `<p><a href="${order.invoice.url}">Descargar boleta</a></p>` : ''}
     `,

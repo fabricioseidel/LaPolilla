@@ -18,9 +18,11 @@
   - [x] Vercel: proyecto `lapolilla` (región gru1) conectado a GitHub, https://lapolilla.vercel.app
   - [x] Código en GitHub (fabricioseidel/LaPolilla)
   - [ ] Crear llaves S3 en Supabase y cargarlas en Vercel (`S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`)
-  - [ ] Mercado Pago (Checkout Pro) y Lemon Squeezy (crear una variante genérica con precio personalizable), con webhooks a `/api/webhooks/*`
+  - [x] Flujo de pago robusto: compra con cuenta, webhooks verificados contra la API de la pasarela, pedidos procesados una sola vez aunque lleguen notificaciones duplicadas
+  - [ ] Mercado Pago (Chile): credenciales de prueba → compra de prueba → credenciales de producción. Webhook: `/api/webhooks/mercadopago`
+  - [ ] Internacional (USD): Lemon Squeezy admite pagos a bancos de Chile, pero Stripe lo está migrando a "Managed Payments", que hoy no acepta negocios en Chile. Evaluar al registrarse; alternativa: PayPal. Webhook: `/api/webhooks/lemonsqueezy`
   - [ ] Dominio `.cl` (NIC Chile) y deploy en Vercel
-  - [ ] Resend con el dominio verificado
+  - [ ] Emails (confirmación, despacho, recuperar contraseña): Resend con el dominio `.cl` verificado
   - [ ] Cargar el primer libro, la autora y las tarifas de envío
   - [ ] Textos legales (términos, retracto según Ley 19.496, privacidad)
 - [x] **2. Identidad visual "Nocturna":** noche #1C1830, índigo #2A2347, lila #9C86C9, lámpara #E8B04B, papel luna #F3EEF9 · Fraunces (títulos) + Inter (textos) · polilla de trazo dorado
