@@ -27,6 +27,7 @@
   - [ ] Textos legales (términos, retracto según Ley 19.496, privacidad)
 - [x] **2. Identidad visual "Nocturna":** noche #1C1830, índigo #2A2347, lila #9C86C9, lámpara #E8B04B, papel luna #F3EEF9 · Fraunces (títulos) + Inter (textos) · polilla de trazo dorado
 - [ ] **3. Boleta automática:** OpenFactura o Bsale en `src/lib/invoicing.ts`
+- [x] **3b. Sitio completo** (4 agentes en paralelo): portada, Nosotros, Preguntas frecuentes, Contacto, Términos y Privacidad editables desde el panel; boletín; catálogo con búsqueda y filtros; ficha con muestra de audio; autoras; galería; biblioteca y reproductor mejorado; Mi cuenta; correos con la identidad (Gmail/SMTP, Resend o consola); SEO (sitemap, robots, imagen para redes); panel con Resumen, etiqueta de despacho, exportación CSV para boletas y guía de uso (docs/GUIA-EDITORIAL.md)
 - [ ] **4. Mejoras:** marca de agua en EPUB/PDF, cotización automática de envíos, cupones, preventas, reseñas, newsletter, feed de Instagram
 
 ## Trámites (persona natural)

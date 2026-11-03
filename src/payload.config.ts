@@ -32,6 +32,8 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     meta: { titleSuffix: ' · La Polilla' },
+    dateFormat: "d 'de' MMMM yyyy, HH:mm",
+    avatar: 'default', // sin Gravatar: no se envían emails del equipo a servicios externos
     components: {
       graphics: {
         Logo: '/components/admin/AdminLogo',

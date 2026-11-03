@@ -19,6 +19,16 @@ export const Posts: CollectionConfig = {
     { name: 'cover', label: 'Imagen', type: 'upload', relationTo: 'media' },
     { name: 'excerpt', label: 'Resumen', type: 'textarea' },
     { name: 'content', label: 'Contenido', type: 'richText' },
-    { name: 'publishedAt', label: 'Fecha', type: 'date', admin: { position: 'sidebar' } },
+    {
+      name: 'publishedAt',
+      label: 'Fecha',
+      type: 'date',
+      admin: { position: 'sidebar', description: 'Se completa sola al publicar si la dejas vacía.' },
+      hooks: {
+        beforeChange: [
+          ({ value, siblingData }) => (!value && siblingData?._status === 'published' ? new Date().toISOString() : value),
+        ],
+      },
+    },
   ],
 }

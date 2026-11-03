@@ -374,6 +374,9 @@ export interface Post {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Se completa sola al publicar si la dejas vacía.
+   */
   publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -477,7 +480,7 @@ export interface Entitlement {
   book: number | Book;
   order?: (number | null) | Order;
   /**
-   * Avance del audiolibro { capitulo, segundo }
+   * Avance del audiolibro: { chapter, seconds }
    */
   audioProgress?:
     | {
@@ -986,6 +989,13 @@ export interface SiteSetting {
       }[]
     | null;
   pickupEnabled?: boolean | null;
+  remitente?: {
+    nombre?: string | null;
+    direccion?: string | null;
+    comuna?: string | null;
+    region?: string | null;
+    telefono?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1076,6 +1086,15 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         id?: T;
       };
   pickupEnabled?: T;
+  remitente?:
+    | T
+    | {
+        nombre?: T;
+        direccion?: T;
+        comuna?: T;
+        region?: T;
+        telefono?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

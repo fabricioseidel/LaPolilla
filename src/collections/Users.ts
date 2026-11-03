@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { isValidRut } from '../lib/rut'
 import { adminFieldOnly, adminOnly, isStaff, staffOrOwner } from '../access/roles'
 import { resetPasswordEmailHTML, sendWelcomeEmail } from '../lib/email'
 import { RESET_PASSWORD_SUBJECT } from '../lib/email-templates'
@@ -50,13 +51,18 @@ export const Users: CollectionConfig = {
       ],
     },
     { name: 'phone', label: 'Teléfono', type: 'text' },
-    { name: 'rut', label: 'RUT (opcional, para boleta)', type: 'text' },
+    {
+      name: 'rut',
+      label: 'RUT (opcional, para boleta)',
+      type: 'text',
+      validate: (value: string | null | undefined) => !value || isValidRut(value) || 'El RUT no es válido',
+    },
   ],
   hooks: {
     afterChange: [
       // Bienvenida a cada cliente nuevo. Nunca bloquea ni hace fallar el registro.
-      async ({ doc, operation, req }) => {
-        if (operation !== 'create' || doc.role !== 'cliente') return doc
+      async ({ doc, operation, req, context }) => {
+        if (operation !== 'create' || doc.role !== 'cliente' || context?.skipWelcome) return doc
         const send = () =>
           sendWelcomeEmail(req.payload, doc).catch((err) =>
             req.payload.logger.error({ err, userId: doc.id }, 'No se pudo enviar el correo de bienvenida'),

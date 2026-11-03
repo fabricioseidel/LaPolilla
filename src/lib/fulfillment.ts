@@ -34,6 +34,7 @@ export async function fulfillOrder(payload: Payload, orderId: number, gatewayPay
           collection: 'users',
           overrideAccess: true,
           data: { email: order.email, password: crypto.randomUUID(), role: 'cliente' },
+          context: { skipWelcome: true },
         })
       ).id
     await payload.update({ collection: 'orders', id: orderId, overrideAccess: true, data: { user: userId } })

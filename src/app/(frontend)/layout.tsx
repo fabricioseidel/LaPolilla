@@ -64,7 +64,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(data) }} />
         <Header />
-        <main>{children}</main>
+        <main id="contenido" tabIndex={-1}>{children}</main>
         <Footer />
       </body>
     </html>

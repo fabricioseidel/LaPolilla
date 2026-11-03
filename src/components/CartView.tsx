@@ -106,6 +106,14 @@ export function CartView({ userEmail, gateways, regions }: Props) {
           )}
 
           <small>Comprando como {userEmail}. El total final (con envío) se muestra en la pasarela de pago.</small>
+          <label className="radio terms">
+            <input type="checkbox" name="terminos" required />
+            <span>
+              Acepto los <Link href="/terminos">términos y condiciones</Link>. Entiendo que el contenido digital (ebook y
+              audiolibro) queda disponible de inmediato y que, una vez descargado o escuchado, no aplica el{' '}
+              <Link href="/terminos#derecho-a-retracto">derecho a retracto</Link>.
+            </span>
+          </label>
           {error && <p className="error" role="alert">{error}</p>}
           <button className="btn" disabled={loading || (hasPhysical && market !== 'CL')}>
             {loading ? 'Redirigiendo…' : 'Ir a pagar'}

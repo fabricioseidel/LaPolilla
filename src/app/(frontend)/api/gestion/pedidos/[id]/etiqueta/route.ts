@@ -7,12 +7,14 @@ import { esc, paginaError, sesionGestion } from '../../../_lib/sesion'
  * TODO: reemplazar los marcadores [entre corchetes] por los datos reales de la editorial
  * (idealmente, moverlos a "Configuración del sitio" para que se editen desde el panel).
  */
-const REMITENTE = {
-  nombre: 'Editorial La Polilla',
-  direccion: '[Dirección del remitente]',
-  comuna: '[Comuna], [Región]',
-  telefono: '[Teléfono del remitente]',
-}
+/** Datos del remitente: se editan en Configuración del sitio → Remitente. */
+type Remitente = { nombre?: string | null; direccion?: string | null; comuna?: string | null; region?: string | null; telefono?: string | null }
+const remitenteDe = (r?: Remitente | null) => ({
+  nombre: r?.nombre || 'Editorial La Polilla',
+  direccion: r?.direccion || '[Dirección del remitente]',
+  comuna: [r?.comuna || '[Comuna]', r?.region || '[Región]'].join(', '),
+  telefono: r?.telefono || '[Teléfono del remitente]',
+})
 
 const FORMATOS = {
   'media-carta': { nombre: 'Media carta', page: '5.5in 8.5in', margen: '8mm', escala: 1.2 },
@@ -43,6 +45,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const ajustes = await payload.findGlobal({ slug: 'site-settings', depth: 0 }).catch(() => null)
   const emailRemitente = ajustes?.contactEmail || '[Email de contacto]'
+  const REMITENTE = remitenteDe(ajustes?.remitente)
 
   const formato: Formato = new URL(req.url).searchParams.get('formato') === 'a6' ? 'a6' : 'media-carta'
   const f = FORMATOS[formato]

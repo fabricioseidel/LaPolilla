@@ -20,6 +20,7 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'shippingRates',
       label: 'Tarifas de envío (CLP)',
+      labels: { singular: 'Tarifa', plural: 'Tarifas' },
       type: 'array',
       admin: { description: 'Tarifa plana por región. Más adelante se puede reemplazar por cotización automática.' },
       fields: [
@@ -28,5 +29,22 @@ export const SiteSettings: GlobalConfig = {
       ],
     },
     { name: 'pickupEnabled', label: 'Permitir retiro en persona', type: 'checkbox', defaultValue: false },
+    {
+      name: 'remitente',
+      label: 'Remitente (para la etiqueta de despacho)',
+      type: 'group',
+      fields: [
+        { name: 'nombre', label: 'Nombre', type: 'text', defaultValue: 'Editorial La Polilla' },
+        { name: 'direccion', label: 'Dirección', type: 'text' },
+        {
+          type: 'row',
+          fields: [
+            { name: 'comuna', label: 'Comuna', type: 'text' },
+            { name: 'region', label: 'Región', type: 'text' },
+          ],
+        },
+        { name: 'telefono', label: 'Teléfono', type: 'text' },
+      ],
+    },
   ],
 }

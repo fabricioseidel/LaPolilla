@@ -15,7 +15,7 @@ export const Entitlements: CollectionConfig = {
     {
       name: 'audioProgress',
       type: 'json',
-      admin: { description: 'Avance del audiolibro { capitulo, segundo }' },
+      admin: { description: 'Avance del audiolibro: { chapter, seconds }' },
     },
   ],
 }
