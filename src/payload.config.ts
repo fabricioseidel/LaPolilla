@@ -29,6 +29,12 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     meta: { titleSuffix: ' · La Polilla' },
+    components: {
+      graphics: {
+        Logo: '/components/admin/AdminLogo',
+        Icon: '/components/admin/AdminIcon',
+      },
+    },
     importMap: { baseDir: path.resolve(dirname) },
   },
   i18n: { supportedLanguages: { es }, fallbackLanguage: 'es' },

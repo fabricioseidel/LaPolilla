@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { BookCard } from '@/components/BookCard'
+import { MothMark } from '@/components/Logo'
 import { getPayloadClient } from '@/lib/payload'
 
 export const dynamic = 'force-dynamic'
@@ -14,6 +15,7 @@ export default async function Home() {
   return (
     <>
       <section className="hero">
+        <MothMark size={120} color="var(--gold)" />
         <h1>Editorial La Polilla</h1>
         <p>{settings.tagline}</p>
         <Link className="btn" href="/libros">Ver catálogo</Link>

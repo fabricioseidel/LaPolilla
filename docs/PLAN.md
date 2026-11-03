@@ -23,7 +23,7 @@
   - [ ] Resend con el dominio verificado
   - [ ] Cargar el primer libro, la autora y las tarifas de envío
   - [ ] Textos legales (términos, retracto según Ley 19.496, privacidad)
-- [ ] **2. Identidad visual:** logo, paleta y tipografías (hoy hay un estilo provisorio)
+- [x] **2. Identidad visual "Nocturna":** noche #1C1830, índigo #2A2347, lila #9C86C9, lámpara #E8B04B, papel luna #F3EEF9 · Fraunces (títulos) + Inter (textos) · polilla de trazo dorado
 - [ ] **3. Boleta automática:** OpenFactura o Bsale en `src/lib/invoicing.ts`
 - [ ] **4. Mejoras:** marca de agua en EPUB/PDF, cotización automática de envíos, cupones, preventas, reseñas, newsletter, feed de Instagram
 
