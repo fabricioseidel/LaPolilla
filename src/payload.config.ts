@@ -34,6 +34,14 @@ export default buildConfig({
         Logo: '/components/admin/AdminLogo',
         Icon: '/components/admin/AdminIcon',
       },
+      // Resumen de la operación (pedidos por despachar, ventas, stock, exportación) y accesos rápidos.
+      beforeDashboard: ['/components/admin/gestion/Resumen'],
+      beforeNavLinks: ['/components/admin/gestion/NavEnlaces#NavInicio'],
+      afterNavLinks: ['/components/admin/gestion/NavEnlaces#NavGuia'],
+      views: {
+        // Guía de uso (docs/GUIA-EDITORIAL.md) dentro del panel: /admin/guia
+        guia: { Component: '/components/admin/gestion/GuiaView', path: '/guia', meta: { title: 'Guía de uso' } },
+      },
     },
     importMap: { baseDir: path.resolve(dirname) },
   },

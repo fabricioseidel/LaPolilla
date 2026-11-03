@@ -356,6 +356,8 @@ export interface Post {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Los pedidos se crean solos cuando alguien compra. Los que tienen libros físicos quedan en «Preparando envío» hasta que los despachas.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "orders".
  */
@@ -363,6 +365,9 @@ export interface Order {
   id: number;
   user?: (number | null) | User;
   email: string;
+  /**
+   * «Preparando envío»: tiene libros físicos por despachar. Al cambiarlo a «Enviado» (con courier y n° de seguimiento) el cliente recibe un email.
+   */
   status: 'pendiente' | 'pagado' | 'preparando' | 'enviado' | 'entregado' | 'cancelado' | 'reembolsado';
   currency: 'CLP' | 'USD';
   gateway: 'mercadopago' | 'lemonsqueezy';
@@ -385,10 +390,22 @@ export interface Order {
     region?: string | null;
     notes?: string | null;
   };
+  /**
+   * Al marcar Enviado con el n° de seguimiento, el cliente recibe un email.
+   */
   shipment?: {
+    /**
+     * Elige «Retiro» si el cliente lo retira en persona.
+     */
     carrier?: ('Starken' | 'Chilexpress' | 'Blue Express' | 'Retiro') | null;
+    /**
+     * Está en el comprobante del courier. Se incluye en el email al cliente.
+     */
     trackingCode?: string | null;
   };
+  /**
+   * Mientras no haya boleta automática, emítela en el portal del SII y anota aquí su folio.
+   */
   invoice?: {
     folio?: string | null;
     url?: string | null;
