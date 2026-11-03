@@ -1,5 +1,4 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
@@ -19,6 +18,7 @@ import { ProtectedFiles } from './collections/ProtectedFiles'
 import { PublicFiles } from './collections/PublicFiles'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
+import { emailAdapter } from './lib/email'
 import { PROTECTED_PREFIX } from './lib/storage'
 
 const filename = fileURLToPath(import.meta.url)
@@ -57,13 +57,10 @@ export default buildConfig({
     // El esquema se maneja con migraciones. PAYLOAD_DB_PUSH=true sólo para bases locales de prueba.
     push: process.env.PAYLOAD_DB_PUSH === 'true',
   }),
-  email: process.env.RESEND_API_KEY
-    ? resendAdapter({
-        apiKey: process.env.RESEND_API_KEY,
-        defaultFromAddress: process.env.EMAIL_FROM || 'hola@editoriallapolilla.cl',
-        defaultFromName: 'Editorial La Polilla',
-      })
-    : undefined, // en desarrollo los emails se muestran en consola
+  // Correo, en este orden: 1) SMTP (p. ej. Gmail) si hay SMTP_HOST, SMTP_USER y SMTP_PASS;
+  // 2) Resend si hay RESEND_API_KEY; 3) si no, consola (en desarrollo muestra el correo completo).
+  // Remitente: EMAIL_FROM con el nombre "Editorial La Polilla". Detalles en src/lib/email.ts.
+  email: emailAdapter(),
   sharp,
   plugins: [
     // Un único bucket PRIVADO en Supabase Storage. Imágenes y muestras se sirven

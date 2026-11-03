@@ -1,0 +1,94 @@
+/* Cuenta de cliente: ingresar, crear cuenta, recuperar y restablecer contraseña, y Mi cuenta. */
+
+/* ---------- Tarjeta centrada de acceso ---------- */
+.auth-page { display: flex; justify-content: center; padding: 8px 0 24px; }
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--indigo);
+  border: 1px solid var(--indigo-2);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 24px 60px rgb(0 0 0 / .35);
+}
+.auth-card__mark { display: flex; justify-content: center; margin-bottom: 4px; }
+.auth-card h1 { margin: 0 0 8px; text-align: center; font-size: clamp(1.75rem, 6vw, 2.2rem); }
+.auth-card__lead { margin: 0 0 24px; text-align: center; color: var(--soft); }
+.auth-card form.auth { max-width: none; }
+.auth-card form.auth .btn { width: 100%; }
+.auth-links { margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--indigo-2); text-align: center; color: var(--soft); }
+.auth-links p { margin: 0; }
+.auth-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; }
+.auth-legal { margin: 0; font-size: .875rem; color: var(--muted); text-align: center; }
+.auth-legal a { color: var(--soft); }
+
+/* ---------- Campos y mensajes (formularios de cuenta) ---------- */
+form.auth, .account-form { display: grid; gap: 18px; }
+.field { display: grid; gap: 6px; }
+.field > label { display: block; font-weight: 500; }
+.field-hint { margin: 0; font-size: .875rem; color: var(--muted); }
+.field-error { margin: 0; font-size: .9rem; color: var(--error); }
+.auth-card input,
+.account-card input {
+  width: 100%;
+  background: var(--night);
+  /* borde con contraste ≥ 3:1 sobre la tarjeta */
+  border-color: var(--lilac);
+  border-color: color-mix(in srgb, var(--lilac) 75%, var(--indigo));
+}
+.auth-card input:focus,
+.account-card input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgb(232 176 75 / .35); }
+.auth-card input[aria-invalid='true'],
+.account-card input[aria-invalid='true'] { border-color: var(--error); }
+.auth-card input[readonly],
+.account-card input[readonly] { color: var(--soft); background: transparent; }
+
+.password-field { display: flex; gap: 8px; }
+.password-field input { flex: 1; min-width: 0; }
+.password-toggle {
+  flex: none;
+  min-width: 92px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--indigo-2);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--soft);
+  font: inherit;
+  font-size: .9rem;
+  cursor: pointer;
+}
+.password-toggle:hover { color: var(--gold); border-color: var(--lilac); }
+
+.checkbox { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.checkbox input { width: 20px; height: 20px; min-height: 0; accent-color: var(--gold); }
+
+.form-message { margin: 0; padding: 12px 14px; border: 1px solid; border-radius: 12px; color: var(--moon); }
+.form-message.is-error { border-color: rgb(255 155 138 / .6); background: rgb(255 155 138 / .1); }
+.form-message.is-ok { border-color: rgb(232 176 75 / .6); background: rgb(232 176 75 / .1); }
+.form-message a { color: var(--gold); }
+/* las zonas de aviso existen siempre; vacías no ocupan espacio */
+.form-feedback .form-message { margin-bottom: 14px; }
+
+/* ---------- Mi cuenta ---------- */
+.account { display: grid; gap: 28px; }
+.account-head h1 { margin: 0 0 6px; font-size: clamp(2rem, 6vw, 2.75rem); }
+.account-head p { margin: 0; color: var(--soft); overflow-wrap: anywhere; }
+.account-grid { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+.account-main, .account-aside { display: grid; gap: 24px; }
+.account-card { background: var(--indigo); border: 1px solid var(--indigo-2); border-radius: 20px; padding: 28px; }
+.account-card h2 { margin: 0 0 6px; font-size: 1.4rem; }
+.account-card__lead { margin: 0 0 20px; color: var(--soft); }
+.account-card .btn { width: 100%; }
+.account-form { max-width: 560px; }
+.account-form .btn { width: auto; justify-self: start; }
+.account-form .auth-inline-link { display: inline-flex; align-items: center; min-height: 44px; }
+
+@media (min-width: 900px) {
+  .account-grid { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .auth-card { padding: 24px 18px; border-radius: 16px; }
+  .account-card { padding: 22px 18px; border-radius: 16px; }
+  .account-form .btn { width: 100%; }
+}
