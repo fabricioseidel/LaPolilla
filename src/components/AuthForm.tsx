@@ -1,0 +1,36 @@
+'use client'
+import { useState } from 'react'
+
+/** Formularios de cuenta usando la API REST de Payload (cookies httpOnly). */
+export function AuthForm({ mode, token }: { mode: 'ingresar' | 'registro' | 'recuperar' | 'restablecer'; token?: string }) {
+  const [msg, setMsg] = useState('')
+
+  async function submit(form: FormData) {
+    const email = form.get('email')
+    const password = form.get('password')
+    const req = (path: string, body: object) =>
+      fetch(`/api/users${path}`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+
+    let res: Response
+    if (mode === 'registro') {
+      res = await req('', { email, password, name: form.get('name') })
+      if (res.ok) res = await req('/login', { email, password })
+    } else if (mode === 'ingresar') res = await req('/login', { email, password })
+    else if (mode === 'recuperar') res = await req('/forgot-password', { email })
+    else res = await req('/reset-password', { token, password })
+
+    if (!res.ok) return setMsg('Algo salió mal. Revisa los datos.')
+    if (mode === 'recuperar') return setMsg('Te enviamos un email con el enlace.')
+    window.location.href = '/biblioteca'
+  }
+
+  return (
+    <form action={submit} className="auth">
+      {mode === 'registro' && <label>Nombre <input name="name" /></label>}
+      {mode !== 'restablecer' && <label>Email <input name="email" type="email" required /></label>}
+      {mode !== 'recuperar' && <label>Contraseña <input name="password" type="password" minLength={8} required /></label>}
+      <button className="btn">Continuar</button>
+      {msg && <p>{msg}</p>}
+    </form>
+  )
+}
