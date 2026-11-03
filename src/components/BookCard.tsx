@@ -1,16 +1,15 @@
 import Link from 'next/link'
 import '@/app/(frontend)/styles/catalogo.css'
 import { money } from '@/lib/format'
-import type { Book } from '@/payload-types'
 import { BookCover } from './catalogo/BookCover'
-import { authorNames, availability, fromPrice } from './catalogo/libro'
+import { authorNames, availability, fromPrice, type CardBook } from './catalogo/libro'
 
 /**
  * Tarjeta de libro: portada, título, autoría, "desde $…" y etiquetas.
  * Toda la tarjeta es clicable; el enlace accesible es el título.
  * Necesita la autoría poblada (depth ≥ 1) para mostrar los nombres.
  */
-export function BookCard({ book, headingLevel = 3, priority = false }: { book: Book; headingLevel?: 2 | 3; priority?: boolean }) {
+export function BookCard({ book, headingLevel = 3, priority = false }: { book: CardBook; headingLevel?: 2 | 3; priority?: boolean }) {
   const a = availability(book)
   const price = fromPrice(book)
   const authors = authorNames(book)

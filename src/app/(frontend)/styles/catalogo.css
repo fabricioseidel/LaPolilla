@@ -310,18 +310,19 @@
 }
 .cat-filtros-campos {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  align-items: end;
+}
+.cat-filtro--busqueda {
+  grid-column: 1 / -1;
 }
 @media (min-width: 560px) {
   .cat-filtros {
     padding: 20px;
   }
   .cat-filtros-campos {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .cat-filtro--busqueda {
-    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
   }
 }
 @media (min-width: 1000px) {
@@ -375,7 +376,8 @@
   gap: 8px 16px;
 }
 .cat-filtros-acciones .btn {
-  min-width: 120px;
+  width: 100%;
+  min-width: 112px;
 }
 .cat-resultados {
   display: flex;
@@ -435,7 +437,7 @@
 .ficha-portada::before {
   content: '';
   position: absolute;
-  inset: -14% -22%;
+  inset: -10% -12%;
   z-index: -1;
   background: radial-gradient(closest-side, rgb(232 176 75 / 0.16), rgb(156 134 201 / 0.06) 60%, transparent);
   pointer-events: none;
@@ -451,6 +453,9 @@
     position: sticky;
     top: 24px;
     width: 100%;
+  }
+  .ficha-portada::before {
+    inset: -14% -22%;
   }
 }
 .ficha-info {

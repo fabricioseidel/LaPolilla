@@ -19,10 +19,30 @@ export const authorNames = (book: Pick<Book, 'authors'>) => listJoin(authorsOf(b
 export const listJoin = (items: string[]) =>
   items.length <= 1 ? (items[0] ?? '') : `${items.slice(0, -1).join(', ')} y ${items[items.length - 1]}`
 
+/** Campos que necesita una tarjeta de libro (para pedir sólo eso con `select`). */
+export const cardSelect = {
+  title: true,
+  slug: true,
+  authors: true,
+  cover: true,
+  status: true,
+  digitalEnabled: true,
+  physicalEnabled: true,
+  priceDigitalCLP: true,
+  pricePhysicalCLP: true,
+  fulfillment: true,
+  stock: true,
+} as const
+export type CardBook = Pick<Book, 'id' | keyof typeof cardSelect>
+type SaleFields = Pick<
+  Book,
+  'status' | 'digitalEnabled' | 'physicalEnabled' | 'fulfillment' | 'stock' | 'priceDigitalCLP' | 'pricePhysicalCLP'
+>
+
 export type PhysicalState = 'disponible' | 'ultimos' | 'agotado' | 'pod'
 
 /** Qué se puede comprar y en qué estado está el libro impreso. */
-export function availability(book: Book) {
+export function availability(book: SaleFields) {
   let physical: PhysicalState | null = null
   if (book.physicalEnabled) {
     if (book.fulfillment === 'pod') physical = 'pod'
@@ -40,7 +60,7 @@ export function availability(book: Book) {
 }
 
 /** Precio más bajo en CLP entre los formatos que se pueden comprar hoy. */
-export function fromPrice(book: Book): number | null {
+export function fromPrice(book: SaleFields): number | null {
   const a = availability(book)
   const prices: number[] = []
   if (a.digital && book.priceDigitalCLP != null) prices.push(book.priceDigitalCLP)
@@ -111,6 +131,14 @@ export function formatLongDuration(sec: number) {
   const h = Math.floor(s / 3600)
   const m = Math.round((s % 3600) / 60)
   return h ? `${h} h ${String(m).padStart(2, '0')} min` : `${m} min`
+}
+
+/** "730 B", "350 KB", "1,2 MB" */
+export function formatBytes(n?: number | null) {
+  if (!n) return ''
+  if (n < 1024) return `${n} B`
+  if (n < 1024 * 1024) return `${Math.round(n / 1024)} KB`
+  return `${(n / (1024 * 1024)).toLocaleString('es-CL', { maximumFractionDigits: 1 })} MB`
 }
 
 /** Sólo enlaces http(s) o mailto (los escribe el equipo, pero mejor no confiar en `javascript:`). */
