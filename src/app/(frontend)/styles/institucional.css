@@ -359,7 +359,7 @@ html { scroll-padding-top: 96px; }
 .news-card:hover { border-color: var(--lilac); }
 .news-card:focus-within { outline: 2px solid var(--gold); outline-offset: 3px; }
 .news-card a:focus-visible { outline: none; }
-.news-card-media { display: grid; place-items: center; aspect-ratio: 16 / 10; background: var(--night); color: var(--indigo-2); }
+.news-card-media { display: grid; place-items: center; aspect-ratio: 16 / 10; overflow: hidden; background: var(--night); color: var(--indigo-2); }
 .news-card-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .news-card-body { display: flex; flex-direction: column; gap: 8px; flex: 1; padding: 20px 22px 24px; }
 .news-card time { color: var(--muted); font-size: .88rem; }
