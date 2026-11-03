@@ -54,7 +54,8 @@ export default buildConfig({
       idleTimeoutMillis: process.env.VERCEL ? 5000 : 10000,
     },
     migrationDir: path.resolve(dirname, 'migrations'),
-    push: false, // el esquema se maneja sólo con migraciones (npm run payload migrate)
+    // El esquema se maneja con migraciones. PAYLOAD_DB_PUSH=true sólo para bases locales de prueba.
+    push: process.env.PAYLOAD_DB_PUSH === 'true',
   }),
   email: process.env.RESEND_API_KEY
     ? resendAdapter({

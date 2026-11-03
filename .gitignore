@@ -48,3 +48,11 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# archivos subidos en desarrollo local
+/media
+/media-public-files
+/protected-files
+
+# worktrees de agentes
+/.claude/
