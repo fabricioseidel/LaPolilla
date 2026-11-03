@@ -26,5 +26,17 @@ export const DEFAULT_TAGLINE = 'Libros que vuelan de noche'
 /** Convierte una ruta interna ("/libros/x") en URL absoluta del sitio. */
 export const absoluteUrl = (path = '/') => `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`
 
+/**
+ * Enlace externo escrito en el panel: sólo http(s) o mailto. "instagram.com/x" se completa
+ * con https://; cualquier otra cosa (p. ej. "javascript:") se descarta.
+ */
+export function externalUrl(url?: string | null): string | undefined {
+  const u = url?.trim()
+  if (!u) return undefined
+  if (/^(https?:|mailto:)/i.test(u)) return u
+  if (/^[\w-]+(\.[\w-]+)+(\/|$)/.test(u)) return `https://${u}`
+  return undefined
+}
+
 /** JSON-LD listo para <script type="application/ld+json"> (escapa "<" para evitar inyección de HTML). */
 export const jsonLd = (data: unknown) => JSON.stringify(data).replace(/</g, '\\u003c')

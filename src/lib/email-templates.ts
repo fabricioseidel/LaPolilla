@@ -8,7 +8,7 @@
  */
 import type { Order } from '../payload-types'
 import { money } from './format'
-import { DEFAULT_TAGLINE, SITE_NAME, absoluteUrl } from './seo'
+import { DEFAULT_TAGLINE, SITE_NAME, absoluteUrl, externalUrl } from './seo'
 
 export type EmailContent = { subject: string; html: string; text: string }
 
@@ -43,15 +43,6 @@ const SANS = "Inter, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
 // ---------------------------------------------------------------------------
 export const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
-
-/** Sólo enlaces http(s) o mailto. "instagram.com/x" se completa con https://. */
-export function safeHref(url?: string | null): string | undefined {
-  const u = url?.trim()
-  if (!u) return undefined
-  if (/^(https?:|mailto:)/i.test(u)) return u
-  if (/^[\w-]+(\.[\w-]+)+(\/|$)/.test(u)) return `https://${u}`
-  return undefined
-}
 
 /** "Ana María Pérez" → "Ana". */
 const firstName = (name?: string | null) => name?.trim().split(/\s+/)[0] || ''
@@ -206,8 +197,8 @@ export function renderEmail({ subject, preheader, blocks, reason, settings = {} 
     { label: 'Libros', href: absoluteUrl('/libros') },
     { label: 'Mi biblioteca', href: absoluteUrl('/biblioteca') },
     { label: 'Mi cuenta', href: absoluteUrl('/cuenta') },
-    { label: 'Instagram', href: safeHref(settings.instagram) },
-    { label: 'YouTube', href: safeHref(settings.youtube) },
+    { label: 'Instagram', href: externalUrl(settings.instagram) },
+    { label: 'YouTube', href: externalUrl(settings.youtube) },
   ].filter((l): l is { label: string; href: string } => Boolean(l.href))
   const contact = settings.contactEmail?.trim()
 
@@ -379,7 +370,7 @@ export function orderPaidEmail(
       content: 'Te escribiremos de nuevo cuando tu libro impreso salga a despacho, con el número de seguimiento.',
     })
   }
-  const invoiceUrl = safeHref(order.invoice?.url)
+  const invoiceUrl = externalUrl(order.invoice?.url)
   if (invoiceUrl)
     blocks.push({
       type: 'paragraph',
