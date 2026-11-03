@@ -77,6 +77,8 @@ export interface Config {
     'media-public-files': MediaPublicFile;
     'protected-files': ProtectedFile;
     users: User;
+    messages: Message;
+    subscribers: Subscriber;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -94,6 +96,8 @@ export interface Config {
     'media-public-files': MediaPublicFilesSelect<false> | MediaPublicFilesSelect<true>;
     'protected-files': ProtectedFilesSelect<false> | ProtectedFilesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    messages: MessagesSelect<false> | MessagesSelect<true>;
+    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -105,9 +109,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'site-texts': SiteText;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'site-texts': SiteTextsSelect<false> | SiteTextsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -451,6 +457,38 @@ export interface Entitlement {
   createdAt: string;
 }
 /**
+ * Mensajes enviados desde la página de contacto. Respóndelos desde tu correo y luego cambia el estado a «Respondido».
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "messages".
+ */
+export interface Message {
+  id: number;
+  nombre: string;
+  email: string;
+  asunto: string;
+  mensaje: string;
+  estado: 'nuevo' | 'respondido';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Personas inscritas en el boletín desde el sitio. Si alguien pide darse de baja, elimínala de esta lista.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers".
+ */
+export interface Subscriber {
+  id: number;
+  email: string;
+  /**
+   * Dónde se inscribió: portada, noticias, contacto…
+   */
+  origen?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -513,6 +551,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'messages';
+        value: number | Message;
+      } | null)
+    | ({
+        relationTo: 'subscribers';
+        value: number | Subscriber;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -820,6 +866,29 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "messages_select".
+ */
+export interface MessagesSelect<T extends boolean = true> {
+  nombre?: T;
+  email?: T;
+  asunto?: T;
+  mensaje?: T;
+  estado?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers_select".
+ */
+export interface SubscribersSelect<T extends boolean = true> {
+  email?: T;
+  origen?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -885,6 +954,72 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
+ * Textos de las páginas Nosotros, Preguntas frecuentes, Términos y condiciones y Privacidad. Reemplaza lo que está entre corchetes [ ]. Si dejas un texto vacío, el sitio muestra el texto de ejemplo.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-texts".
+ */
+export interface SiteText {
+  id: number;
+  nosotros?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  faq?:
+    | {
+        pregunta: string;
+        /**
+         * Deja una línea en blanco para separar párrafos. Para una lista, empieza cada línea con «• ».
+         */
+        respuesta: string;
+        id?: string | null;
+      }[]
+    | null;
+  terminos?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  privacidad?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -905,6 +1040,25 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         id?: T;
       };
   pickupEnabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-texts_select".
+ */
+export interface SiteTextsSelect<T extends boolean = true> {
+  nosotros?: T;
+  faq?:
+    | T
+    | {
+        pregunta?: T;
+        respuesta?: T;
+        id?: T;
+      };
+  terminos?: T;
+  privacidad?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
