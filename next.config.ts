@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(dirname),
   },
+  // La guía del panel (/admin/guia) lee docs/GUIA-EDITORIAL.md en tiempo de ejecución.
+  outputFileTracingIncludes: {
+    '/admin/**': ['./docs/**/*.md'],
+  },
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })
