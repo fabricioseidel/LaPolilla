@@ -1257,6 +1257,10 @@ html:has(.galeria-visor[open]) {
 }
 
 /* Libro comprado */
+.biblio-aviso {
+  margin-top: 32px;
+  max-width: 70ch;
+}
 .biblio-cabecera {
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr);
