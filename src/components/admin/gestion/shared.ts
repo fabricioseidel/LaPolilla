@@ -32,8 +32,8 @@ type ConRol = Pick<User, 'role'> | { role?: string | null } | null | undefined
 /** Ventas, exportación y despacho: sólo administradora y jefa de edición. */
 export const puedeVerVentas = (user: ConRol) => user?.role === 'admin' || user?.role === 'editora'
 
-/** URL relativa dentro del panel, respetando `routes.admin`. */
-export const urlPanel = (payload: Payload, path: `/${string}`) =>
+/** URL relativa dentro del panel, respetando `routes.admin` ('' es el inicio del panel). */
+export const urlPanel = (payload: Payload, path: '' | `/${string}`) =>
   formatAdminURL({ adminRoute: payload.config.routes.admin, path, relative: true })
 
 /** Lista de pedidos filtrada por estado, en el formato que entiende el filtro del panel. */

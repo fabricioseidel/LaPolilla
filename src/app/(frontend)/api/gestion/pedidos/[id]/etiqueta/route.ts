@@ -16,7 +16,7 @@ const REMITENTE = {
 
 const FORMATOS = {
   'media-carta': { nombre: 'Media carta', page: '5.5in 8.5in', margen: '8mm', escala: 1.2 },
-  a6: { nombre: 'A6', page: 'A6 portrait', margen: '5mm', escala: 1 },
+  a6: { nombre: 'A6', page: '105mm 148mm', margen: '5mm', escala: 1 },
 } as const
 type Formato = keyof typeof FORMATOS
 
@@ -81,7 +81,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   .hoja { padding: 24px 16px 48px; display: flex; justify-content: center; }
   .etiqueta {
     --e: ${f.escala};
-    width: calc(95mm * var(--e)); background: #fff; border: 2px solid #000; font-size: calc(10pt * var(--e)); line-height: 1.3;
+    width: calc(95mm * var(--e)); max-width: 100%; background: #fff; border: 2px solid #000; font-size: calc(10pt * var(--e)); line-height: 1.3;
   }
   .bloque { padding: calc(3mm * var(--e)) calc(4mm * var(--e)); border-bottom: 2px solid #000; }
   .bloque:last-child { border-bottom: 0; }

@@ -11,7 +11,14 @@ export const Orders: CollectionConfig = {
   admin: {
     useAsTitle: 'id',
     group: 'Ventas',
-    defaultColumns: ['id', 'email', 'status', 'total', 'currency', 'createdAt'],
+    description:
+      'Los pedidos se crean solos cuando alguien compra. Los que tienen libros físicos quedan en «Preparando envío» hasta que los despachas.',
+    defaultColumns: ['id', 'createdAt', 'email', 'status', 'total', 'currency'],
+    listSearchableFields: ['id', 'email'],
+    components: {
+      // Exportación de ventas (CSV) sobre la tabla: sólo administradora y jefa de edición.
+      beforeListTable: ['/components/admin/gestion/ExportarVentas'],
+    },
   },
   access: {
     read: staffOrOwner('user'),
@@ -28,6 +35,10 @@ export const Orders: CollectionConfig = {
       type: 'select',
       required: true,
       defaultValue: 'pendiente',
+      admin: {
+        description:
+          '«Preparando envío»: tiene libros físicos por despachar. Al cambiarlo a «Enviado» (con courier y n° de seguimiento) el cliente recibe un email.',
+      },
       options: [
         { label: 'Pendiente de pago', value: 'pendiente' },
         { label: 'Pagado', value: 'pagado' },
@@ -58,21 +69,37 @@ export const Orders: CollectionConfig = {
     {
       name: 'items',
       label: 'Productos',
+      labels: { singular: 'Producto', plural: 'Productos' },
       type: 'array',
       required: true,
       fields: [
-        { name: 'book', type: 'relationship', relationTo: 'books', required: true },
-        { name: 'format', type: 'select', options: ['digital', 'fisico'], required: true },
-        { name: 'quantity', type: 'number', min: 1, defaultValue: 1 },
-        { name: 'unitPrice', type: 'number', required: true },
+        { name: 'book', label: 'Libro', type: 'relationship', relationTo: 'books', required: true },
+        {
+          name: 'format',
+          label: 'Formato',
+          type: 'select',
+          options: [
+            { label: 'Digital', value: 'digital' },
+            { label: 'Físico', value: 'fisico' },
+          ],
+          required: true,
+        },
+        { name: 'quantity', label: 'Cantidad', type: 'number', min: 1, defaultValue: 1 },
+        { name: 'unitPrice', label: 'Precio unitario', type: 'number', required: true },
       ],
     },
     {
       type: 'row',
       fields: [
-        { name: 'subtotal', type: 'number', required: true },
+        { name: 'subtotal', label: 'Subtotal', type: 'number', required: true },
         { name: 'shipping', label: 'Envío', type: 'number', defaultValue: 0 },
-        { name: 'total', type: 'number', required: true },
+        {
+          name: 'total',
+          label: 'Total',
+          type: 'number',
+          required: true,
+          admin: { components: { Cell: '/components/admin/gestion/CeldaTotal' } },
+        },
       ],
     },
     {
@@ -90,22 +117,47 @@ export const Orders: CollectionConfig = {
       ],
     },
     {
+      // Botón "Imprimir etiqueta de despacho" (no guarda datos).
+      name: 'etiquetaDespacho',
+      type: 'ui',
+      admin: {
+        condition: (d) => d?.items?.some((i: { format: string }) => i.format === 'fisico'),
+        disableListColumn: true,
+        components: { Field: '/components/admin/gestion/EtiquetaDespacho' },
+      },
+    },
+    {
       name: 'shipment',
       label: 'Despacho',
       type: 'group',
+      admin: { description: 'Al marcar Enviado con el n° de seguimiento, el cliente recibe un email.' },
       fields: [
-        { name: 'carrier', label: 'Courier', type: 'select', options: ['Starken', 'Chilexpress', 'Blue Express', 'Retiro'] },
-        { name: 'trackingCode', label: 'N° de seguimiento', type: 'text' },
+        {
+          name: 'carrier',
+          label: 'Courier',
+          type: 'select',
+          options: ['Starken', 'Chilexpress', 'Blue Express', 'Retiro'],
+          admin: { description: 'Elige «Retiro» si el cliente lo retira en persona.' },
+        },
+        {
+          name: 'trackingCode',
+          label: 'N° de seguimiento',
+          type: 'text',
+          admin: { description: 'Está en el comprobante del courier. Se incluye en el email al cliente.' },
+        },
       ],
     },
     {
       name: 'invoice',
       label: 'Boleta electrónica',
       type: 'group',
-      admin: { condition: (d) => d?.currency === 'CLP' },
+      admin: {
+        condition: (d) => d?.currency === 'CLP',
+        description: 'Mientras no haya boleta automática, emítela en el portal del SII y anota aquí su folio.',
+      },
       fields: [
-        { name: 'folio', type: 'text' },
-        { name: 'url', type: 'text' },
+        { name: 'folio', label: 'Folio', type: 'text' },
+        { name: 'url', label: 'Enlace a la boleta (opcional)', type: 'text' },
       ],
     },
   ],
