@@ -37,7 +37,13 @@ export default buildConfig({
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
-  db: postgresAdapter({ pool: { connectionString: process.env.DATABASE_URL || '' } }),
+  db: postgresAdapter({
+    // Esquema propio: así las tablas NO quedan expuestas por la API REST pública de Supabase.
+    schemaName: 'payload',
+    pool: { connectionString: process.env.DATABASE_URL || '' },
+    migrationDir: path.resolve(dirname, 'migrations'),
+    push: false, // el esquema se maneja sólo con migraciones (npm run payload migrate)
+  }),
   email: process.env.RESEND_API_KEY
     ? resendAdapter({
         apiKey: process.env.RESEND_API_KEY,
